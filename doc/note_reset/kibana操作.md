@@ -1,0 +1,1 @@
+http://192.168.31.118:5601/app/dev_tools#/console

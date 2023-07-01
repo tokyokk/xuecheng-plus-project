@@ -1,0 +1,1 @@
+ minio.exe server D:\project\learn_video\minio_data
