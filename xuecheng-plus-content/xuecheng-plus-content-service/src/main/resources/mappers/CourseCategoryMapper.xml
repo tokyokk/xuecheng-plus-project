@@ -6,7 +6,7 @@
         id,name,label,parentid,is_show,orderby,is_leaf
     </sql>
 
-    <select id="selectTreeNodes" resultType="com.xuecheng.api.dto.CourseCategoryTreeDto">
+    <select id="selectTreeNodes" resultType="com.xuecheng.content.model.dto.CourseCategoryTreeDto">
         WITH recursive t1 AS (
             SELECT *
             FROM xc_content.course_category

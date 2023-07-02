@@ -3,11 +3,12 @@ package com.xuecheng.content.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.xuecheng.api.dto.AddCourseDto;
-import com.xuecheng.api.dto.CourseBaseInfoDto;
-import com.xuecheng.api.dto.QueryCourseParamsDto;
-import com.xuecheng.api.po.CourseBase;
-import com.xuecheng.api.po.CourseMarket;
+import com.xuecheng.content.model.dto.AddCourseDto;
+import com.xuecheng.content.model.dto.CourseBaseInfoDto;
+import com.xuecheng.content.model.dto.EditCourseDto;
+import com.xuecheng.content.model.dto.QueryCourseParamsDto;
+import com.xuecheng.content.model.po.CourseBase;
+import com.xuecheng.content.model.po.CourseMarket;
 import com.xuecheng.base.exception.XueChengPlusException;
 import com.xuecheng.base.model.PageParams;
 import com.xuecheng.base.model.PageResult;
@@ -143,7 +144,8 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService
      * @description 查询课程信息
      * @date 2023/7/1 23:18
      */
-    public CourseBaseInfoDto getCourseBaseInfo(long courseId)
+    @Override
+    public CourseBaseInfoDto getCourseBaseInfo(Long courseId)
     {
         // 从课程基本信息表中查询
         CourseBase courseBase = courseBaseMapper.selectById(courseId);
@@ -163,6 +165,46 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService
         // todo:课程分类的名称设置到courseBaseInfoDto
         return courseBaseInfoDto;
 
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public CourseBaseInfoDto updateCourseBase(Long companyId, EditCourseDto editCourseDto)
+    {
+        // 拿到课程id
+        Long courseId = editCourseDto.getId();
+        // 查询课程信息
+        CourseBase courseBase = courseBaseMapper.selectById(courseId);
+        if (courseBase == null) {
+            XueChengPlusException.cast("课程不存在");
+        }
+
+        // 数据合法性校验
+        // 根据具体的业务逻辑去校验
+        // 本机构只能修改本机构的课程
+        if (!companyId.equals(courseBase.getCompanyId())) {
+            XueChengPlusException.cast("本机构只能修改本机构的课程");
+        }
+
+        // 封装参数:更新基本信息
+        BeanUtils.copyProperties(editCourseDto,courseBase);
+        // 修改时间
+        courseBase.setChangeDate(LocalDateTime.now());
+        CourseMarket courseMarket = courseMarketMapper.selectById(courseId);
+        if (courseMarket ==null) {
+            courseMarket = new CourseMarket();
+        }
+        BeanUtils.copyProperties(editCourseDto,courseMarket);
+        saveCourseMarket(courseMarket);
+        // 更新数据库
+        int i = courseBaseMapper.updateById(courseBase);
+        if (i<=0){
+            XueChengPlusException.cast("修改课程失败");
+        }
+        // 查询课程信息
+        CourseBaseInfoDto courseBaseInfo = getCourseBaseInfo(courseId);
+
+        return courseBaseInfo;
     }
 
     /**

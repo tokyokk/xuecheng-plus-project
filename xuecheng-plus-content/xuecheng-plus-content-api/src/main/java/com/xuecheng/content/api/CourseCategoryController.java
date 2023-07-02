@@ -1,6 +1,6 @@
 package com.xuecheng.content.api;
 
-import com.xuecheng.api.dto.CourseCategoryTreeDto;
+import com.xuecheng.content.model.dto.CourseCategoryTreeDto;
 import com.xuecheng.content.service.CourseCategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

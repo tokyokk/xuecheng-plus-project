@@ -1,7 +1,7 @@
 package com.xuecheng.content;
 
-import com.xuecheng.api.dto.QueryCourseParamsDto;
-import com.xuecheng.api.po.CourseBase;
+import com.xuecheng.content.model.dto.QueryCourseParamsDto;
+import com.xuecheng.content.model.po.CourseBase;
 import com.xuecheng.base.model.PageParams;
 import com.xuecheng.base.model.PageResult;
 import com.xuecheng.content.service.CourseBaseInfoService;

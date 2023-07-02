@@ -1,4 +1,4 @@
-package com.xuecheng.api.po;
+package com.xuecheng.content.model.po;
 
 import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModel;

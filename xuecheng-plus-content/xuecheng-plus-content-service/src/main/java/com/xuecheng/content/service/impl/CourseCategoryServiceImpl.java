@@ -1,6 +1,6 @@
 package com.xuecheng.content.service.impl;
 
-import com.xuecheng.api.dto.CourseCategoryTreeDto;
+import com.xuecheng.content.model.dto.CourseCategoryTreeDto;
 import com.xuecheng.content.mapper.CourseCategoryMapper;
 import com.xuecheng.content.service.CourseCategoryService;
 import lombok.RequiredArgsConstructor;

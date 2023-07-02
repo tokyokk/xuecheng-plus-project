@@ -1,6 +1,6 @@
-package com.xuecheng.api.dto;
+package com.xuecheng.content.model.dto;
 
-import com.xuecheng.api.po.CourseCategory;
+import com.xuecheng.content.model.po.CourseCategory;
 import lombok.Data;
 
 import java.io.Serializable;

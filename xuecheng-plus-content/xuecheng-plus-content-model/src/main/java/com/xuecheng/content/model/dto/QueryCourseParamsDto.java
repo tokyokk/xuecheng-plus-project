@@ -1,4 +1,4 @@
-package com.xuecheng.api.dto;
+package com.xuecheng.content.model.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
