@@ -1,0 +1,65 @@
+#server:
+#  servlet:
+#    context-path: /content
+#  port: 63040
+## 微服务配置
+spring:
+  application:
+    name: content-api
+  profiles:
+    active: dev # 环境名 content-api-dev.yaml
+  cloud:
+    nacos:
+      username: nacos
+      password: nacos
+      discovery:
+        server-addr: 127.0.0.1:8848
+        namespace: dev
+        group: xuecheng-plus-project
+      config: # 配置文件相关配置
+        server-addr: 127.0.0.1:8848
+        namespace: dev
+        refresh-enabled: true
+        group: xuecheng-plus-project
+        file-extension: yaml
+        extension-configs:
+          - data-id: content-service-${spring.profiles.active}.yaml
+            group: xuecheng-plus-project
+            refresh: true
+        shared-configs:
+          - data-id: swagger-${spring.profiles.active}.yaml
+            group: xuecheng-plus-common
+            refresh: true
+          - data-id: logging-${spring.profiles.active}.yaml
+            group: xuecheng-plus-common
+            refresh: true
+          - data-id: freemarker-config-dev.yaml
+            group: xuecheng-plus-common
+            refresh: true
+          - data-id: feign-${spring.profiles.active}.yaml
+            group: xuecheng-plus-common
+            refresh: true
+          - data-id: redis-${spring.profiles.active}.yaml
+            group: xuecheng-plus-common
+            refresh: true
+
+#  # database设置
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://localhost:3306/xc_content?serverTimezone=UTC&useUnicode=true&useSSL=false&useCharacterEncoding=UTF-8
+#    username: root
+#    password: 123456
+
+# 日志文件配置路径
+#logging:
+#  config: classpath:log4j2-dev.xml
+mybatis-plus:
+  mapper-locations: classpath:mappers/*.xml
+# swagger 文档配置
+#swagger:
+#  title: "学成在线内容管理系统"
+#  description: "内容系统管理系统对课程相关信息进行业务管理数据"
+#  base-package: com.xuecheng
+#  enabled: true
+#  version: 1.0.0
+

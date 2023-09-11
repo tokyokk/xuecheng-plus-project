@@ -1,0 +1,169 @@
+#全局配置
+user www;                                       #Nginx进程运行的用户
+worker_processes  1;                              #启动的worker进程数(默认为1，表示开启一个业务进程)
+# worker_processes auto;                            #工作进程的数量，通常设置为CPU核心数
+#error_log  logs/error.log;                       #错误日志文件路径
+
+#事件驱动模块配置
+events {
+    worker_connections  1024;                     #每个worker进程的连接数（每个工作进程可处理的最大连接数）
+}
+
+#HTTP模块配置
+http {
+    include       mime.types;                     #1、包含常见的MIME类型定义
+                                                  #2、include是引入关键字，这里引入了mime.types这个配置文件（同在conf目录下，mime.types是用来定义，请求返回的content-type）
+    default_type  application/octet-stream;       #默认的MIME类型，mime.types未定义的，使用默认格式application/octet-stream
+
+    sendfile        on;                           #详情，见下文
+    keepalive_timeout  65;                        #长链接超时时间
+
+	# 文件服务
+	upstream fileserver {
+        	server 172.16.102.1:9000 weight=10;
+     }
+     # 网关服务
+     upstream gatewayserver {
+        	server 192.168.1.4:63010 weight=10;
+     }
+     #前端开发服务
+	upstream uidevserver {
+		server 192.168.1.4:8601 weight=10;
+	}
+
+	
+    #服务器配置，一个nginx可以启用多个server（虚拟服务器）
+    server {
+        listen       80;                          #监听的端口号80
+        server_name www.51xuecheng.cn 51xuecheng.cn localhost;                   #服务器名称（接收的域名、主机名）
+	   ssi on;
+	   ssi_silent_errors on;
+
+        #location / { 
+        #    root   html;                          #网站根目录（根目录指向html目录）
+        #    index  index.html index.htm;          #默认首页文件（域名/index 指向 index.html index.htm文件）
+        #}
+
+        
+
+		location / {
+			alias /home/xuecheng-ui/xc-ui-pc-static-portal/;
+			index index.html index.htm;
+		}
+		# api
+		location /api/ {
+			proxy_pass http://gatewayserver/;
+		}
+		
+		#静态资源
+		location /static/img/ {
+			alias /home/xuecheng-ui/xc-ui-pc-static-portal/img/;
+		}
+		location /static/css/ {
+			alias /home/xuecheng-ui/xc-ui-pc-static-portal/css/;
+		}
+		location /static/js/ {
+			alias /home/xuecheng-ui/xc-ui-pc-static-portal/js/;
+		}
+		location /static/plugins/ {
+			alias /home/xuecheng-ui/xc-ui-pc-static-portal/plugins/;
+			add_header Access-Control-Allow-Origin http://ucenter.51xuecheng.cn; 
+			add_header Access-Control-Allow-Credentials true;
+			add_header Access-Control-Allow-Methods GET;
+		}
+		location /plugins/ {
+			alias /home/xuecheng-ui/xc-ui-pc-static-portal/plugins/;
+		}
+		
+
+		location /course/preview/learning.html {
+			alias /home/xuecheng-ui/xc-ui-pc-static-portal/course/learning.html;
+		}
+		location /course/search.html {
+			root /home/xuecheng-ui/xc-ui-pc-static-portal;
+		}
+		location /course/learning.html {
+			root /home/xuecheng-ui/xc-ui-pc-static-portal;
+		}
+
+		location /course/ {
+			proxy_pass http://fileserver/mediafiles/course/;
+		}
+
+		#openapi
+		location /open/content/ {
+			proxy_pass http://gatewayserver/content/open/;
+		}
+		location /open/media/ {
+			proxy_pass http://gatewayserver/media/open/;
+		}
+        
+
+        error_page   500 502 503 504  /50x.html;  #服务器错误码为500 502 503 504，转到"域名/50x.html"
+        location = /50x.html {                    #指定到html文件夹下找/50x.htm
+            root   html;
+        }
+
+    }
+
+    server {
+		listen 80;
+		server_name ucenter.xuecheng-plus.com;
+		#charset koi8-r;
+		ssi on;
+		ssi_silent_errors on;		
+		#access_log logs/host.access.log main;
+	location / {
+		alias /home/xuecheng-ui/xc-ui-pc-static-portal/ucenter/;
+		index index.html index.htm;
+	}
+	location /include {
+		proxy_pass http://127.0.0.1; 
+		}
+		location /img/ {
+		proxy_pass http://127.0.0.1/static/img/; 
+		}
+	location /api/ {
+		proxy_pass http://gatewayserver/; 
+		}
+	}
+
+    server {
+    		listen	80;
+    		server_name	file.51xuecheng.cn;
+    		ssi	on;
+    		ssi_silent_errors	on;
+    		location /video {
+    			proxy_pass	http://fileserver;
+    		}
+
+    		location	/mediafiles {
+    			proxy_pass	http://fileserver;
+    		}
+    		
+    }
+
+    server {
+		listen 80;
+		server_name teacher.51xuecheng.cn;
+		#charset koi8-r;
+		ssi on;
+		ssi_silent_errors on;
+		#access_log logs/host.access.log main;
+		#location / {
+		# alias D:/itcast2022/xc_edu3.0/code_1/dist/;
+		# index index.html index.htm;
+		#}
+		location / {
+			proxy_pass http://uidevserver; 
+		}
+		
+		location /api/ {
+			proxy_pass http://gatewayserver/; 
+		}
+		
+	
+	}
+
+
+}

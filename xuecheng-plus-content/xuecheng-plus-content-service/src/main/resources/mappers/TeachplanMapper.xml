@@ -67,7 +67,7 @@
                m1.media_id       mediaId
 
         from xc_content.teachplan one
-                 INNER JOIN xc_content.teachplan two on one.id = two.parentid
+                 LEFT JOIN xc_content.teachplan two on one.id = two.parentid
                  LEFT JOIN xc_content.teachplan_media m1 on m1.teachplan_id = two.id
         where one.parentid = 0
           and one.course_id = #{value}

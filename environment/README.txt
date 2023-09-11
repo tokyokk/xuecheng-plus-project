@@ -1,0 +1,13 @@
+1.NACOS
+2.REDIS
+3.MYSQL
+4.NGINX
+5.MYSQL
+6.ELASTICSEARCH
+7.NGINX
+8.VUE前端
+9.MINIO
+10.MQ
+11.xxl-job
+12.支付模块没有配置正确的秘钥，微信登录没有申请微信秘钥
+

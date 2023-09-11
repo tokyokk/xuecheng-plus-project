@@ -3,18 +3,19 @@ package com.xuecheng.content.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.xuecheng.content.model.dto.AddCourseDto;
-import com.xuecheng.content.model.dto.CourseBaseInfoDto;
-import com.xuecheng.content.model.dto.EditCourseDto;
-import com.xuecheng.content.model.dto.QueryCourseParamsDto;
-import com.xuecheng.content.model.po.CourseBase;
-import com.xuecheng.content.model.po.CourseMarket;
 import com.xuecheng.base.exception.XueChengPlusException;
 import com.xuecheng.base.model.PageParams;
 import com.xuecheng.base.model.PageResult;
 import com.xuecheng.content.mapper.CourseBaseMapper;
 import com.xuecheng.content.mapper.CourseCategoryMapper;
 import com.xuecheng.content.mapper.CourseMarketMapper;
+import com.xuecheng.content.model.dto.AddCourseDto;
+import com.xuecheng.content.model.dto.CourseBaseInfoDto;
+import com.xuecheng.content.model.dto.EditCourseDto;
+import com.xuecheng.content.model.dto.QueryCourseParamsDto;
+import com.xuecheng.content.model.po.CourseBase;
+import com.xuecheng.content.model.po.CourseCategory;
+import com.xuecheng.content.model.po.CourseMarket;
 import com.xuecheng.content.service.CourseBaseInfoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,8 +43,7 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService
     private final CourseCategoryMapper courseCategoryMapper;
 
     @Override
-    public PageResult<CourseBase> queryCourseBaseList(PageParams pageParams, QueryCourseParamsDto courseParamsDto)
-    {
+    public PageResult<CourseBase> queryCourseBaseList(Long companyId, PageParams pageParams, QueryCourseParamsDto courseParamsDto) {
         LambdaQueryWrapper<CourseBase> queryWrapper = new LambdaQueryWrapper<>();
         // 根据名称模糊查询,在sql中拼接 course_base.name like '%值%'
         queryWrapper.like(StringUtils.isNotEmpty(courseParamsDto.getCourseName()), CourseBase::getName,
@@ -54,6 +54,8 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService
         //根据课程发布状态
         queryWrapper.eq(StringUtils.isNotEmpty(courseParamsDto.getPublishStatus()), CourseBase::getStatus,
                 courseParamsDto.getPublishStatus());
+        // 根据培训机构id拼接查询条件
+        queryWrapper.eq(CourseBase::getCompanyId, companyId);
 
         // 创建page分页对象,参数:当前页码,每页记录数
         Page<CourseBase> page = new Page<>(pageParams.getPageNo(), pageParams.getPageSize());
@@ -162,7 +164,14 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService
             BeanUtils.copyProperties(courseMarket, courseBaseInfoDto);
         }
         // 通过courseCategoryMapper查询分类信息,将分类名称放在courseBaseInfoDto对象
-        // todo:课程分类的名称设置到courseBaseInfoDto
+        CourseCategory mtObj = courseCategoryMapper.selectById(courseBase.getMt());
+        String mtName = mtObj.getName(); // 大分类名称
+        courseBaseInfoDto.setMtName(mtName);
+
+        CourseCategory stObj = courseCategoryMapper.selectById(courseBase.getSt());
+        String stName = stObj.getName(); // 小分类名称
+        courseBaseInfoDto.setStName(stName);
+
         return courseBaseInfoDto;
 
     }
@@ -198,9 +207,10 @@ public class CourseBaseInfoServiceImpl implements CourseBaseInfoService
         saveCourseMarket(courseMarket);
         // 更新数据库
         int i = courseBaseMapper.updateById(courseBase);
-        if (i<=0){
+        if (i<=0) {
             XueChengPlusException.cast("修改课程失败");
         }
+
         // 查询课程信息
         CourseBaseInfoDto courseBaseInfo = getCourseBaseInfo(courseId);
 

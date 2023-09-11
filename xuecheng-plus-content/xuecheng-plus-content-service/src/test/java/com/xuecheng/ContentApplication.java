@@ -2,6 +2,7 @@ package com.xuecheng;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 /**
  * @author ragnarok
@@ -10,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @create 2023-06-29 22:34
  * @github https://github.com/Ragnarokoo
  */
+@EnableFeignClients(basePackages = "com.xuecheng.content.feignclient")
 @SpringBootApplication
 public class ContentApplication
 {

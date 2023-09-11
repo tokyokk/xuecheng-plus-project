@@ -1,12 +1,12 @@
 package com.xuecheng.content.service;
 
+import com.xuecheng.base.model.PageParams;
+import com.xuecheng.base.model.PageResult;
 import com.xuecheng.content.model.dto.AddCourseDto;
 import com.xuecheng.content.model.dto.CourseBaseInfoDto;
 import com.xuecheng.content.model.dto.EditCourseDto;
 import com.xuecheng.content.model.dto.QueryCourseParamsDto;
 import com.xuecheng.content.model.po.CourseBase;
-import com.xuecheng.base.model.PageParams;
-import com.xuecheng.base.model.PageResult;
 
 /**
  * @author ragnarok
@@ -19,13 +19,14 @@ public interface CourseBaseInfoService
 {
     /**
      * @param pageParams      分页查询参数
+     * @param companyId       机构id
      * @param courseParamsDto 查询条件
      * @return PageResult<CourseBase> 查询结果
      * @author ragnarok
      * @description 课程分页查询
      * @date 2023/6/30 20:53
      */
-    public PageResult<CourseBase> queryCourseBaseList(PageParams pageParams, QueryCourseParamsDto courseParamsDto);
+    public PageResult<CourseBase> queryCourseBaseList(Long companyId, PageParams pageParams, QueryCourseParamsDto courseParamsDto);
 
     /**
      * @author ragnarok

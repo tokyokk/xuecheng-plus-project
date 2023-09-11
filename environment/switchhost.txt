@@ -1,0 +1,4 @@
+
+# 学成在线project的域名配置
+172.16.102.135 www.51xuecheng.cn 51xuecheng.cn ucenter.51xuecheng.cn teacher.51xuecheng.cn file.51xuecheng.cn group.51xuecheng.cn group1.xuecheng.com localhost
+# 127.0.0.1 www.51xuecheng.cn 51xuecheng.cn ucenter.51xuecheng.cn teacher.51xuecheng.cn file.51xuecheng.cn group.51xuecheng.cn group1.xuecheng.com localhost:8080

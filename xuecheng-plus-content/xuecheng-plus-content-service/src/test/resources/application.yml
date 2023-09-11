@@ -1,17 +1,59 @@
-#微服务配置
+## 微服务配置
 spring:
   application:
     name: content-service
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      server-addr: localhost:8848
+      username: nacos
+      password: nacos
+      discovery:
+        namespace: ${spring.profiles.active}
+        group: xuecheng-plus-project
+      config:
+        namespace: ${spring.profiles.active}
+        group: xuecheng-plus-project
+        file-extension: yaml
+        refresh-enabled: true
+        shared-configs:
+          - data-id: feign-${spring.profiles.active}.yaml
+            group: xuecheng-plus-common
+            refresh: true
+#  cloud:
+#    nacos:
+#      username: nacos
+#      password: nacos
+#      discovery:
+#        server-addr: localhost:8848
+#        namespace: dev
+#        group: xuecheng-plus-project
+#      config: # 配置文件相关配置
+#        server-addr: localhost:8848
+#        namespace: dev
+#        refresh-enabled: true
+#        group: xuecheng-plus-project
+#        file-extension: yaml
+#        shared-configs:
+#          - data-id: feign-${spring.profiles.active}.yaml
+#            group: xuecheng-plus-common
+#            refresh: true
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://localhost:3306/xc_content?serverTimezone=UTC&useUnicode=true&useSSL=false&useCharacterEncoding=UTF-8
+#    username: root
+#    password: 123456
+#
+#feign:
+#  hystrix:
+#    enabled: true
+#  circuitbreaker:
+#    enabled: true
+## 日志文件配置路径
+#logging:
+#  config: classpath:log4j2-dev.xml
+#mybatis-plus:
+#  mapper-locations: classpath:mappers/*.xml
 
-  # database设置
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/xc_content?serverTimezone=UTC&useUnicode=true&useSSL=false&useCharacterEncoding=UTF-8
-    username: root
-    password: 123456
-
-# 日志文件配置路径
-logging:
-  config: classpath:log4j2-dev.xml
-mybatis-plus:
-  mapper-locations: classpath:mappers/*.xml
+# springcloud 关于

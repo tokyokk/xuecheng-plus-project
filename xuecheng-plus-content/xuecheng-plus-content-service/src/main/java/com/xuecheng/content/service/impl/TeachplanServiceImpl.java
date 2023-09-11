@@ -1,15 +1,20 @@
 package com.xuecheng.content.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.xuecheng.base.exception.XueChengPlusException;
 import com.xuecheng.content.mapper.TeachplanMapper;
+import com.xuecheng.content.mapper.TeachplanMediaMapper;
+import com.xuecheng.content.model.dto.BindTeachplanMediaDto;
 import com.xuecheng.content.model.dto.SaveTeachplanDto;
 import com.xuecheng.content.model.dto.TeachplanDto;
 import com.xuecheng.content.model.po.Teachplan;
+import com.xuecheng.content.model.po.TeachplanMedia;
 import com.xuecheng.content.service.TeachplanService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,6 +31,7 @@ import java.util.List;
 public class TeachplanServiceImpl implements TeachplanService
 {
     private final TeachplanMapper teachplanMapper;
+    private final TeachplanMediaMapper teachplanMediaMapper;
 
     @Override
     public List<TeachplanDto> findTeachplayTree(Long courseId)
@@ -33,11 +39,11 @@ public class TeachplanServiceImpl implements TeachplanService
         List<TeachplanDto> teachplanDtos = teachplanMapper.selectTreeNodes(courseId);
         return teachplanDtos;
     }
-    private int getTeachplanCount(Long courseId,Long parentId){
+    private Integer getTeachplanCount(Long courseId,Long parentId){
         LambdaQueryWrapper<Teachplan> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper = queryWrapper.eq(Teachplan::getParentid,parentId).eq(Teachplan::getCourseId,courseId);
         Long count = teachplanMapper.selectCount(queryWrapper);
-        return (int) (count + 1);
+        return (int)(count + 1);
     }
 
     @Override
@@ -63,5 +69,31 @@ public class TeachplanServiceImpl implements TeachplanService
             BeanUtils.copyProperties(saveTeachplanDto, teachplan);
             teachplanMapper.updateById(teachplan);
         }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void associationMedia(BindTeachplanMediaDto bindTeachplanMediaDto) {
+
+        // 教学计划
+        Long teachplanId = bindTeachplanMediaDto.getTeachplanId();
+        Teachplan teachplan = teachplanMapper.selectById(teachplanId);
+        if (teachplan== null) {
+            XueChengPlusException.cast("教学计划不存在");
+        }
+        Integer grade = teachplan.getGrade();
+        if (grade != 2) {
+            XueChengPlusException.cast("只允许在第二级教学计划绑定媒资文件");
+        }
+
+        // 先根据原有记录,根据课程计划id删除它所绑定的媒资
+        teachplanMediaMapper.delete(new LambdaQueryWrapper<TeachplanMedia>().eq(TeachplanMedia::getTeachplanId, bindTeachplanMediaDto.getTeachplanId()));
+
+        // 在添加新记录
+        TeachplanMedia teachplanMedia = new TeachplanMedia();
+        BeanUtils.copyProperties(bindTeachplanMediaDto,teachplanMedia);
+        teachplanMedia.setCourseId(teachplan.getCourseId());
+        teachplanMedia.setMediaFilename(bindTeachplanMediaDto.getFileName());
+        teachplanMediaMapper.insert(teachplanMedia);
     }
 }
